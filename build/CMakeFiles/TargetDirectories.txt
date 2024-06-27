@@ -1,0 +1,3 @@
+/Users/ksrivastava/Desktop/Projects/MicroCompiler/build/CMakeFiles/microcompiler.dir
+/Users/ksrivastava/Desktop/Projects/MicroCompiler/build/CMakeFiles/edit_cache.dir
+/Users/ksrivastava/Desktop/Projects/MicroCompiler/build/CMakeFiles/rebuild_cache.dir
