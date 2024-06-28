@@ -5,7 +5,7 @@
 using namespace std;
 
 enum class TokenType {
-    _return,
+    _exit,
     int_lit,
     semi,
 };
@@ -35,7 +35,7 @@ vector<Token> tokenise(const string& str) {
             }
             i--;
             if (buffer == "exit") {
-                tokens.push_back(Token{TokenType::_return, nullopt});
+                tokens.push_back(Token{TokenType::_exit, nullopt});
                 buffer.clear();
                 continue;
             } else {
@@ -71,7 +71,7 @@ string tokens_to_asm(vector<Token>& tokens) {
     out << ".global _start\n_start:\n";
     for (int i = 0; i < tokens.size(); i++) {
         const Token& token = tokens.at(i);
-        if (token.type == TokenType::_return) {
+        if (token.type == TokenType::_exit) {
             if (i + 1 < tokens.size() && tokens.at(i + 1).type == TokenType::int_lit) {
                 if (i + 2 < tokens.size() && tokens.at(i + 2).type == TokenType::semi) {
                     out << "   mov x0, #" << tokens.at(i + 1).value.value() << "\n";
