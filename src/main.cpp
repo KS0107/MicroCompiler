@@ -1,70 +1,14 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include "tokenisation.hpp"
 
 using namespace std;
 
-enum class TokenType {
-    _exit,
-    int_lit,
-    semi,
-};
-
-struct Token {
-    TokenType type;
-    optional<string> value;
-};
-
-vector<Token> tokenise(const string& str) {
-    vector<Token> tokens{};
-
-    string buffer;
-
-    for (int i = 0; i < str.length(); i++) {
-        char c = str.at(i);
-
-        if (isspace(c)) {
-            continue;
-        }
-        if (isalpha(c)) {
-            buffer.push_back(c);
-            i++;
-            while (isalnum(str.at(i))) {
-                buffer.push_back(str.at(i));
-                i++;
-            }
-            i--;
-            if (buffer == "exit") {
-                tokens.push_back(Token{TokenType::_exit, nullopt});
-                buffer.clear();
-                continue;
-            } else {
-                cerr << "Unknown token: " << buffer << endl;
-                exit(EXIT_FAILURE);
-            }
-        } else if (isdigit(c)) {
-            buffer.push_back(c);
-            i++;
-            while ((isdigit(str.at(i)))) {
-                buffer.push_back(str.at(i));
-                i++;  
-            }
-            i--;
-            tokens.push_back(Token{TokenType::int_lit, buffer});
-            buffer.clear();
-        } else if (c == ';') {
-            tokens.push_back(Token{TokenType::semi, nullopt});
-        } 
-        else {
-            cerr << "Unknown token: " << c << endl;
-            exit(EXIT_FAILURE);
-        }
-
-
-    }
-    return tokens;
+// vector<Token> tokenise(const string& str) {
+ 
     
-}
+// }
 
 string tokens_to_asm(vector<Token>& tokens) {
     stringstream out;
@@ -103,7 +47,10 @@ int main(int argc, char *argv[]) {
         contents = contents_stream.str();
     }
 
-    vector<Token> tokens = tokenise(contents);
+    Tokeniser tokeniser(std::move(contents));
+
+    vector<Token> tokens = tokeniser.tokenise(contents);
+
 
     {
         fstream output_file("out.asm", ios::out);
