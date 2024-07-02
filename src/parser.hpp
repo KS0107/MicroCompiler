@@ -31,7 +31,8 @@ public:
     optional<NodeExit> parse() {
         optional<NodeExit> ExitNode;
         while (peek().has_value()) {
-            if (peek().value().type == TokenType::_exit) {
+            if (peek().value().type == TokenType::_exit && peek(1).has_value() && peek(1).value().type == TokenType::open_paren) {
+                consume();
                 consume();
                 if (auto node_expr = parse_expr()) {
                     ExitNode = NodeExit{.expr = node_expr.value() };
@@ -40,10 +41,16 @@ public:
                     exit(EXIT_FAILURE);
                 }
 
+                if (peek().has_value() && peek().value().type == TokenType::close_paren) {
+                    consume();
+                } else {
+                    std::cerr << "Expected ')'" << endl;
+                    exit(EXIT_FAILURE);
+                }
                 if (peek().has_value() && peek().value().type == TokenType::semi) {
                     consume();
                 } else {
-                    std::cerr << "Invalid expression" << endl;
+                    std::cerr << "Expected ':'" << endl;
                     exit(EXIT_FAILURE);
                 }
 
