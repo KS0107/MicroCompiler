@@ -2,34 +2,11 @@
 #include <fstream>
 #include <sstream>
 #include "tokenisation.hpp"
-
+#include "parser.hpp"
+#include "generation.hpp"
 using namespace std;
 
-// vector<Token> tokenise(const string& str) {
- 
-    
-// }
 
-string tokens_to_asm(vector<Token>& tokens) {
-    stringstream out;
-    out << ".global _start\n_start:\n";
-    for (int i = 0; i < tokens.size(); i++) {
-        const Token& token = tokens.at(i);
-        if (token.type == TokenType::_exit) {
-            if (i + 1 < tokens.size() && tokens.at(i + 1).type == TokenType::int_lit) {
-                if (i + 2 < tokens.size() && tokens.at(i + 2).type == TokenType::semi) {
-                    out << "   mov x0, #" << tokens.at(i + 1).value.value() << "\n";
-                    out << "   mov x16, #1\n";
-                    out << "   svc #0";
-
-                }
-            }
-        }
-    }
-
-    return out.str();
-
-}
 
 int main(int argc, char *argv[]) {
 
@@ -48,14 +25,21 @@ int main(int argc, char *argv[]) {
     }
 
     Tokeniser tokeniser(std::move(contents));
-
     vector<Token> tokens = tokeniser.tokenise(contents);
 
+    Parser parser(std::move(tokens));
+    optional<NodeExit> tree = parser.parse();
+
+    if (!tree.has_value()) {
+        cerr << "No exit statement found" << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    Generator generator(tree.value());
 
     {
         fstream output_file("out.asm", ios::out);
-        output_file << tokens_to_asm(tokens);
-        cout << "Output written to out.asm" << endl;
+        output_file << generator.generate();
     }
 
     // Tests to ensure that the file is read and converted to assembly correctly

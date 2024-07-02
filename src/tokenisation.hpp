@@ -72,7 +72,7 @@ public:
 
 private:
 
-    [[nodiscard]] optional<char> peek(int n=1) const {
+    [[nodiscard]] inline optional<char> peek(int n=1) const {
         if (m_index + n > m_src.length()) {
             return {};
         } else {
@@ -80,7 +80,7 @@ private:
         }
     }
 
-    char consume() {
+    inline char consume() {
         return m_src[m_index++];
     }
 
