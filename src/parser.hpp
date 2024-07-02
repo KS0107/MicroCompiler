@@ -58,11 +58,11 @@ public:
 
 private:
 
-    [[nodiscard]] inline optional<Token> peek(int n=1) const {
-        if (m_index + n > m_tokens.size()) {
+    [[nodiscard]] inline optional<Token> peek(int n=0) const {
+        if (m_index + n >= m_tokens.size()) {
             return {};
         } else {
-            return m_tokens[m_index];
+            return m_tokens[m_index + n];
         }
     }
 

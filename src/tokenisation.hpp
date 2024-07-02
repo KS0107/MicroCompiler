@@ -72,11 +72,11 @@ public:
 
 private:
 
-    [[nodiscard]] inline optional<char> peek(int n=1) const {
-        if (m_index + n > m_src.length()) {
+    [[nodiscard]] inline optional<char> peek(int n=0) const {
+        if (m_index + n >= m_src.length()) {
             return {};
         } else {
-            return m_src[m_index];
+            return m_src[m_index + n];
         }
     }
 
