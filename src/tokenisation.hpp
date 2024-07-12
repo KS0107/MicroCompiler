@@ -14,7 +14,8 @@ enum class TokenType {
     close_paren,
     ident,
     var,
-    eq
+    eq,
+    plus
 };
 
 struct Token {
@@ -78,6 +79,10 @@ public:
             } else if (peek().value() == '=') {
                 consume();
                 tokens.push_back({TokenType::eq, nullopt});
+                continue;
+            } else if (peek().value() == '+') {
+                consume();
+                tokens.push_back({TokenType::plus, nullopt});
                 continue;
             } else if (isspace(peek().value())) {
                 consume();

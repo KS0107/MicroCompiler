@@ -10,29 +10,46 @@ public:
     inline Generator(NodeProg* prog) : m_prog(std::move(prog)) {
 
     };
+
+    void gen_term(const NodeTerm* term) {
+        struct TermVisitor {
+            Generator * gen;
+            void operator() (const NodeTermIntLit* term_int_lit) const {
+                gen->m_output << "    mov x0, #" << term_int_lit->int_lit.value.value() << "\n";
+                gen->push("x0");
+            }
+            void operator() (const NodeTermIdent* term_ident) const {
+                if (gen->m_vars.count(term_ident->ident.value.value()) == 0) {
+                    std::cerr << "Undeclared identifier: " << term_ident->ident.value.value() << std::endl;
+                    exit(EXIT_FAILURE);
+                }
+                const auto& var = gen->m_vars.at(term_ident->ident.value.value());
+                std::stringstream offset;
+                offset << "[sp, #" << (gen->m_stack_size - var.stack_loc - 1) * 16 + 8 << "]";
+                gen->m_output << "    ldr x0, " << offset.str() << "\n";
+                gen->push("x0");
+            }
+        };
+        TermVisitor visitor({.gen = this});
+        std::visit(visitor, term->var);
+    }
  
     void gen_expr(const NodeExpr* expr) {
         struct ExprVisitor {
             Generator* gen;
 
-            void operator() (const NodeExprIntLit* expr_int_lit) {
-                gen->m_output << "    mov x0, #" << expr_int_lit->int_lit.value.value() << "\n";
-                gen->push("x0");
+            void operator() (const NodeTerm* term) {
+                gen->gen_term(term);
             }
 
-            void operator() (const NodeExprIdent* expr_ident) {
-                if (gen->m_vars.count(expr_ident->ident.value.value()) == 0) {
-                    std::cerr << "Undeclared identifier: " << expr_ident->ident.value.value() << std::endl;
-                    exit(EXIT_FAILURE);
-                }
-            const auto& var = gen->m_vars.at(expr_ident->ident.value.value());
-            std::stringstream offset;
-            offset << "[sp, #" << (gen->m_stack_size - var.stack_loc - 1) * 16 + 8 << "]";
-            gen->m_output << "    ldr x0, " << offset.str() << "\n";
-            gen->push("x0");
-            }
+        
             void operator()(const NodeBinExpr* bin_expr) const {
-                assert(false);
+                gen->gen_expr(bin_expr->add->lhs);
+                gen->gen_expr(bin_expr->add->rhs);
+                gen->pop("x0");
+                gen->pop("x19");
+                gen->m_output << "    add x0, x0, x19\n"; 
+                gen->push("x0");
             }
         };
 
