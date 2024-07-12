@@ -11,7 +11,10 @@ enum class TokenType {
     int_lit,
     semi,
     open_paren,
-    close_paren
+    close_paren,
+    ident,
+    var,
+    eq
 };
 
 struct Token {
@@ -43,9 +46,14 @@ public:
                     tokens.push_back({TokenType::_exit});
                     buffer.clear();
                     continue;
+                } else if (buffer == "var") {
+                    tokens.push_back({ TokenType::var});
+                    buffer.clear();
+                    continue;
                 } else {
-                    cerr << "Error" << endl;
-                    exit(EXIT_FAILURE);
+                    tokens.push_back({.type = TokenType::ident, .value = buffer});
+                    buffer.clear();
+                    continue;
                 }
             } else if (isdigit(peek().value())) {
                 buffer.push_back(consume());
@@ -58,14 +66,18 @@ public:
             } else if (peek().value() == '(') {
                 consume();
                 tokens.push_back({TokenType::open_paren, nullopt});
-                // continue;
+                continue;
             } else if (peek().value() == ')') {
                 consume();
                 tokens.push_back({TokenType::close_paren, nullopt});
-                // continue;
+                continue;
             } else if (peek().value() == ';') {
                 consume();
                 tokens.push_back({TokenType::semi, nullopt});
+                continue;
+            } else if (peek().value() == '=') {
+                consume();
+                tokens.push_back({TokenType::eq, nullopt});
                 continue;
             } else if (isspace(peek().value())) {
                 consume();

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include "arena.hpp"
 #include "tokenisation.hpp"
 #include "parser.hpp"
 #include "generation.hpp"
@@ -22,24 +23,24 @@ int main(int argc, char *argv[]) {
         fstream input(argv[1], ios::in);
         contents_stream << input.rdbuf();
         contents = contents_stream.str();
-    }
+    } 
 
     Tokeniser tokeniser(std::move(contents));
     vector<Token> tokens = tokeniser.tokenise(contents);
 
     Parser parser(std::move(tokens));
-    optional<NodeExit> tree = parser.parse();
+    optional<NodeProg> prog = parser.parse_prog();
 
-    if (!tree.has_value()) {
-        cerr << "No exit statement found" << endl;
+    if (!prog.has_value()) {
+        cerr << "Invalid program" << endl;
         exit(EXIT_FAILURE);
     }
 
-    Generator generator(tree.value());
+    Generator generator(&prog.value());
 
     {
         fstream output_file("out.asm", ios::out);
-        output_file << generator.generate();
+        output_file << generator.gen_prog();
     }
 
     // Tests to ensure that the file is read and converted to assembly correctly
