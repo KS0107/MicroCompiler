@@ -15,8 +15,20 @@ enum class TokenType {
     ident,
     var,
     eq,
-    plus
+    plus,
+    star
 };
+
+optional<int> bin_prec(TokenType type) {
+    switch (type) {
+        case TokenType::plus:
+            return 0;
+        case TokenType::star:
+            return 1;
+        default:
+            return {};
+    }
+}
 
 struct Token {
     TokenType type;
@@ -79,6 +91,10 @@ public:
             } else if (peek().value() == '=') {
                 consume();
                 tokens.push_back({TokenType::eq, nullopt});
+                continue;
+            } else if (peek().value() == '*') {
+                consume();
+                tokens.push_back({TokenType::star, nullopt});
                 continue;
             } else if (peek().value() == '+') {
                 consume();

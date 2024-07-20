@@ -33,6 +33,30 @@ public:
         TermVisitor visitor({.gen = this});
         std::visit(visitor, term->var);
     }
+    
+    void gen_bin_expr(const NodeBinExpr* bin_expr) {
+        struct BinExprVisitor {
+            Generator* gen;
+
+            void operator() (const NodeBinExprAdd* add) const {
+                gen->gen_expr(add->lhs);
+                gen->gen_expr(add->rhs);
+                gen->pop("x0");
+                gen->pop("x19");
+                gen->m_output << "    add x0, x0, x19\n"; 
+                gen->push("x0");
+ 
+            }
+
+            void operator() (const NodeBinExprMulti* mul) const {
+                assert(false);
+
+            }
+        };
+
+        BinExprVisitor visitor {.gen = this};
+        std::visit(visitor, bin_expr->var);
+    };
  
     void gen_expr(const NodeExpr* expr) {
         struct ExprVisitor {
@@ -44,12 +68,8 @@ public:
 
         
             void operator()(const NodeBinExpr* bin_expr) const {
-                gen->gen_expr(bin_expr->add->lhs);
-                gen->gen_expr(bin_expr->add->rhs);
-                gen->pop("x0");
-                gen->pop("x19");
-                gen->m_output << "    add x0, x0, x19\n"; 
-                gen->push("x0");
+                gen->gen_bin_expr(bin_expr);
+
             }
         };
 

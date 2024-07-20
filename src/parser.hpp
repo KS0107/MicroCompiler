@@ -20,13 +20,13 @@ struct NodeBinExprAdd {
     NodeExpr* rhs;
 };
  
-// struct NodeBinExprMulti {
-//     NodeExpr* lhs;
-//     NodeExpr* rhs;
-// };
+struct NodeBinExprMulti {
+    NodeExpr* lhs;
+    NodeExpr* rhs;
+};
 
 struct NodeBinExpr {
-    NodeBinExprAdd* add;
+    std::variant<NodeBinExprAdd*, NodeBinExprMulti*> var;
 };
 
 struct NodeTerm {
@@ -73,7 +73,7 @@ public:
                 consume();
                 if (auto rhs = parse_expr()) {
                     bin_expr_add->rhs = rhs.value();
-                    bin_expr->add = bin_expr_add;
+                    bin_expr->var = bin_expr_add;
                     return bin_expr; 
                 } else {
                     std::cerr << "Expected expression" << std::endl;
@@ -107,7 +107,33 @@ public:
         }
     }
 
-    optional<NodeExpr*> parse_expr() {
+    optional<NodeExpr*> parse_expr(int min_prec = 0) {
+        optional<NodeTerm*> term_lhs = parse_term();
+        optional<int> prec;
+        if (!term_lhs.has_value()) {return {};}
+
+        while (true) {
+            optional<Token> curr_tok = peek(); // Fix the undefined identifier error
+            if  (!curr_tok.has_value()) {
+                prec = bin_prec(curr_tok->type);
+                if (!prec.has_value() || prec < min_prec) {
+                    break;
+                }
+            } 
+            auto expr = m_allocator.alloc<NodeBinExpr>();
+            Token op = consume();
+            
+            if (op.type == TokenType::plus) {
+                auto add = m_allocator.alloc<NodeBinExprAdd>();
+
+                expr->var = add;
+            } else if (op.type == TokenType::star) {
+                auto multi = m_allcoator.alloc<NodeBinExprMulti>();
+                expr->var = multi;
+            }
+            int next_min_prec = prec.value() + 1;
+            auto expr_rhs = parse_expr(next_min_prec);
+        }
         if (auto term = parse_term()) {
             if (try_consume(TokenType::plus).has_value()) {
                 auto bin_expr = m_allocator.alloc<NodeBinExpr>();
@@ -117,7 +143,7 @@ public:
                 bin_expr_add->lhs = lhs_expr;;
                 if (auto rhs = parse_expr()) {
                     bin_expr_add->rhs = rhs.value();
-                    bin_expr->add = bin_expr_add;
+                    bin_expr->var = bin_expr_add;
                     auto expr = m_allocator.alloc<NodeExpr>();
                     expr->var = bin_expr;
                     return expr; 
@@ -134,6 +160,7 @@ public:
             return {};
 
         } 
+        
     }
 
     optional<NodeStmt*> parse_stmt() {
