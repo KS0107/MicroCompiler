@@ -7,8 +7,6 @@
 #include "generation.hpp"
 using namespace std;
 
-
-
 int main(int argc, char *argv[]) {
 
     if (argc != 2) {
@@ -36,7 +34,7 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    Generator generator(&prog.value());
+    Generator generator(prog.value());
 
     {
         fstream output_file("out.asm", ios::out);
