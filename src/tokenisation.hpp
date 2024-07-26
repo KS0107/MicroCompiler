@@ -18,7 +18,9 @@ enum class TokenType {
     plus,
     star,
     sub,
-    div
+    div,
+    open_brace,
+    close_brace
 };
 
 optional<int> bin_prec(TokenType type) {
@@ -111,6 +113,14 @@ public:
             } else if (peek().value() == '/') {
                 consume();
                 tokens.push_back({TokenType::div, nullopt});
+                continue;
+            } else if (peek().value() == '{') {
+                consume();
+                tokens.push_back({TokenType::open_brace, nullopt});
+                continue;
+            } else if (peek().value() == '}') {
+                consume();
+                tokens.push_back({TokenType::close_brace, nullopt});
                 continue;
             } else if (isspace(peek().value())) {
                 consume();
