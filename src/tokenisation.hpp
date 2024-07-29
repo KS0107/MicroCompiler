@@ -87,7 +87,19 @@ public:
                 tokens.push_back({TokenType::int_lit, buffer});
                 buffer.clear();
                 continue; 
-            } else if (peek().value() == '(') {
+            } else if (peek().value() == '/' && peek(1).has_value() && peek(1).value() == '/') {
+                consume();
+                consume();
+                while (peek().has_value() && peek().value() != '\n' && peek().value() != '\r') {
+                    consume(); 
+                }
+                consume(); 
+                
+                if (peek().has_value() && peek().value() == '\n') {
+                    consume();
+                }
+            }
+            else if (peek().value() == '(') {
                 consume();
                 tokens.push_back({TokenType::open_paren, nullopt});
                 continue;
