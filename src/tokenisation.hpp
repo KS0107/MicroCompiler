@@ -94,8 +94,20 @@ public:
                     consume(); 
                 }
                 consume(); 
-                
+
                 if (peek().has_value() && peek().value() == '\n') {
+                    consume();
+                }
+            }  else if (peek().value() == '/' && peek(1).has_value() && peek(1).value() == '*') {
+                consume(); // Consume '/'
+                consume(); // Consume '*'
+                
+                while (peek().has_value()) {
+                    if (peek().value() == '*' && peek(1).has_value() && peek(1).value() == '/') {
+                        consume(); // Consume '*'
+                        consume(); // Consume '/'
+                        break;
+                    }
                     consume();
                 }
             }
