@@ -14,135 +14,149 @@ public:
     void gen_term(const NodeTerm* term)
     {
         struct TermVisitor {
-            Generator* gen;
+            Generator& gen;
             void operator()(const NodeTermIntLit* term_int_lit) const
             {
-                gen->m_output << "    mov x0, #" << term_int_lit->int_lit.value.value() << "\n";
-                gen->push("x0");
+                gen.m_output << "    mov x0, #" << term_int_lit->int_lit.value.value() << "\n";
+                gen.push("x0");
             }
             void operator()(const NodeTermIdent* term_ident) const
             {
-                auto it = std::find_if(gen->m_vars.cbegin(), 
-                    gen->m_vars.cend(),
+                auto it = std::find_if(gen.m_vars.cbegin(), 
+                    gen.m_vars.cend(),
                     [&](const Var& var) { return var.name == term_ident->ident.value.value();});
-                if (it == gen->m_vars.cend()) {
+                if (it == gen.m_vars.cend()) {
                     std::cerr << "Undeclared identifier: " << term_ident->ident.value.value() << std::endl;
                     exit(EXIT_FAILURE);
                 }
                 std::stringstream offset;
-                offset << "[sp, #" << (gen->m_stack_size - (*it).stack_loc - 1) * 16 + 8 << "]";
-                gen->m_output << "    ldr x0, " << offset.str() << "\n";
-                gen->push("x0");
+                offset << "[sp, #" << (gen.m_stack_size - (*it).stack_loc - 1) * 16 + 8 << "]";
+                gen.m_output << "    ldr x0, " << offset.str() << "\n";
+                gen.push("x0");
             }
             void operator()(const NodeTermParen* term_paren) const
             {
-                gen->gen_expr(term_paren->expr);
+                gen.gen_expr(term_paren->expr);
             }
         };
-        TermVisitor visitor({ .gen = this });
+        TermVisitor visitor({ .gen = *this });
         std::visit(visitor, term->var);
     }
 
     void gen_bin_expr(const NodeBinExpr* bin_expr)
     {
         struct BinExprVisitor {
-            Generator* gen;
+            Generator& gen;
             void operator()(const NodeBinExprSub* sub) const
             {
-                gen->gen_expr(sub->rhs);
-                gen->gen_expr(sub->lhs);
-                gen->pop("x0");
-                gen->pop("x1");
-                gen->m_output << "    sub x0, x0, x1\n";
-                gen->push("x0");
+                gen.gen_expr(sub->rhs);
+                gen.gen_expr(sub->lhs);
+                gen.pop("x0");
+                gen.pop("x1");
+                gen.m_output << "    sub x0, x0, x1\n";
+                gen.push("x0");
             }
             void operator()(const NodeBinExprAdd* add) const
             {
-                gen->gen_expr(add->rhs);
-                gen->gen_expr(add->lhs);
-                gen->pop("x0");
-                gen->pop("x1");
-                gen->m_output << "    add x0, x0, x1\n";
-                gen->push("x0");
+                gen.gen_expr(add->rhs);
+                gen.gen_expr(add->lhs);
+                gen.pop("x0");
+                gen.pop("x1");
+                gen.m_output << "    add x0, x0, x1\n";
+                gen.push("x0");
             }
             void operator()(const NodeBinExprMulti* multi) const
             {
-                gen->gen_expr(multi->rhs);
-                gen->gen_expr(multi->lhs);
-                gen->pop("x0");
-                gen->pop("x1");
-                gen->m_output << "    mul x0, x0, x1\n";
-                gen->push("x0");
+                gen.gen_expr(multi->rhs);
+                gen.gen_expr(multi->lhs);
+                gen.pop("x0");
+                gen.pop("x1");
+                gen.m_output << "    mul x0, x0, x1\n";
+                gen.push("x0");
             }
             void operator()(const NodeBinExprDiv* div) const
             {
-                gen->gen_expr(div->rhs);
-                gen->gen_expr(div->lhs);
-                gen->pop("x0");
-                gen->pop("x1");
-                gen->m_output << "    udiv x0, x0, x1\n";
-                gen->push("x0");
+                gen.gen_expr(div->rhs);
+                gen.gen_expr(div->lhs);
+                gen.pop("x0");
+                gen.pop("x1");
+                gen.m_output << "    udiv x0, x0, x1\n";
+                gen.push("x0");
             }
         };
 
-        BinExprVisitor visitor { .gen = this };
+        BinExprVisitor visitor { .gen = *this };
         std::visit(visitor, bin_expr->var);
+    }
+
+    void gen_scope(const NodeScope* scope) {
+        begin_scope();
+        for (const NodeStmt* stmt : scope->stmts) {
+            gen_stmt(stmt);
+        }
+        end_scope(); 
     }
 
     void gen_expr(const NodeExpr* expr)
     {
         struct ExprVisitor {
-            Generator* gen;
+            Generator& gen;
             void operator()(const NodeTerm* term) const
             {
-                gen->gen_term(term);
+                gen.gen_term(term);
             }
             void operator()(const NodeBinExpr* bin_expr) const
             {
-                gen->gen_bin_expr(bin_expr);
+                gen.gen_bin_expr(bin_expr);
             }
         };
 
-        ExprVisitor visitor { .gen = this };
+        ExprVisitor visitor { .gen = *this };
         std::visit(visitor, expr->var);
     }
 
     void gen_stmt(const NodeStmt* stmt)
     {
         struct StmtVisitor {
-            Generator* gen;
+            Generator& gen;
             void operator()(const NodeStmtExit* stmt_exit) const
             {
-                gen->gen_expr(stmt_exit->expr);
-                gen->m_output << "    mov x16, #1\n";
-                gen->pop("x0");
-                gen->m_output << "    svc #0x80\n";
+                gen.gen_expr(stmt_exit->expr);
+                gen.m_output << "    mov x16, #1\n";
+                gen.pop("x0");
+                gen.m_output << "    svc #0x80\n";
             }
             void operator()(const NodeStmtVar* stmt_let) const
             {
-                auto it = std::find_if(gen->m_vars.cbegin(), 
-                    gen->m_vars.cend(),
+                auto it = std::find_if(gen.m_vars.cbegin(), 
+                    gen.m_vars.cend(),
                     [&](const Var& var) {
                         return var.name ==  stmt_let->ident.value.value();});
-                if (it != gen->m_vars.cend()) {
+                if (it != gen.m_vars.cend()) {
                     std::cerr << "Identifier already used: " << stmt_let->ident.value.value() << std::endl;
                     exit(EXIT_FAILURE);
                 }
-                gen->m_vars.push_back({ .name = stmt_let->ident.value.value(), .stack_loc = gen->m_stack_size  });
-                gen->gen_expr(stmt_let->expr);
-                gen->push("x0");
+                gen.m_vars.push_back({ .name = stmt_let->ident.value.value(), .stack_loc = gen.m_stack_size  });
+                gen.gen_expr(stmt_let->expr);
+                gen.push("x0");
             }
 
-            void operator()(const NodeStmtScope* scope) const {
-                gen->begin_scope();
-                for (const NodeStmt* stmt : scope->stmts) {
-                    gen->gen_stmt(stmt);
-                }
-                gen->end_scope(); 
+            void operator()(const NodeScope* scope) const {
+                gen.gen_scope(scope);
+            }
+
+            void operator() (const NodeStmtIf* stmt_if) const {
+                gen.gen_expr(stmt_if->expr);
+                gen.pop("x0");
+                std::string label = gen.create_label();
+                gen.m_output << "    cmp x0, #0\n";
+                gen.m_output << "    beq " << label << "\n";
+                gen.gen_scope(stmt_if->scope);
+                gen.m_output << label << ":\n";
             }
         };
 
-        StmtVisitor visitor { .gen = this };
+        StmtVisitor visitor { .gen = *this };
         std::visit(visitor, stmt->var);
     }
 
@@ -189,6 +203,11 @@ private:
         }
         m_scopes.pop_back();
     }
+    
+    std::string create_label() {
+        std::string ret = "label" + std::to_string(m_label_count++);
+        return ret;
+    }
 
     struct Var {
         std::string name;
@@ -196,6 +215,7 @@ private:
     };
 
     const NodeProg m_prog;
+    int m_label_count = 0 ;
     std::stringstream m_output;
     size_t m_stack_size = 0;
     std::vector<Var> m_vars {};

@@ -20,7 +20,8 @@ enum class TokenType {
     sub,
     div,
     open_brace,
-    close_brace
+    close_brace,
+    if_,
 };
 
 optional<int> bin_prec(TokenType type) {
@@ -67,6 +68,10 @@ public:
                     continue;
                 } else if (buffer == "var") {
                     tokens.push_back({ TokenType::var});
+                    buffer.clear();
+                    continue;
+                } else if (buffer == "if") {
+                    tokens.push_back({ TokenType::if_});
                     buffer.clear();
                     continue;
                 } else {
