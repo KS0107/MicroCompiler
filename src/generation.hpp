@@ -175,10 +175,10 @@ void gen_stmt(const NodeStmt* stmt) {
                 exit(EXIT_FAILURE);
             }
             gen.gen_expr(stmt_assign->expr);
-            gen.pop("x0"); // Pop value into x0
+            gen.pop("x0"); 
             std::stringstream offset;
-            offset << "[sp, #" << (gen.m_stack_size - it->stack_loc - 1) * 16 + 8 << "]"; // Calculate memory address
-            gen.m_output << "    str x0, " << offset.str() << "\n"; // Store x0 into memory
+            offset << "[sp, #" << (gen.m_stack_size - it->stack_loc - 1) * 16 + 8 << "]"; 
+            gen.m_output << "    str x0, " << offset.str() << "\n";
 
         }
 

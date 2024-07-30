@@ -106,7 +106,7 @@ class Parser {
 public:
     inline explicit Parser(std::vector<Token> tokens)
         : m_tokens(std::move(tokens))
-        , m_allocator(1024 * 1024 * 4) // 4 mb
+        , m_allocator(1024 * 1024 * 4)
     {
     }
 

@@ -16,7 +16,6 @@ int main(int argc, char *argv[]) {
     
     string contents ;
     {
-        // Get file contents into a string
         stringstream contents_stream;
         fstream input(argv[1], ios::in);
         contents_stream << input.rdbuf();
@@ -41,7 +40,6 @@ int main(int argc, char *argv[]) {
         output_file << generator.gen_prog();
     }
 
-    // Tests to ensure that the file is read and converted to assembly correctly
     int ret = system("as -o out.o out.asm");
     if (WIFEXITED(ret) && WEXITSTATUS(ret) != 0) {
         cerr << "Assembly failed with exit status: " << WEXITSTATUS(ret) << endl;
