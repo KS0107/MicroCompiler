@@ -110,8 +110,8 @@ public:
                 gen.m_output << "    beq " << label << "\n";
                 gen.gen_scope(elif->scope);
                 gen.m_output << "    b " << end_label << "\n";
-                gen.m_output << label << ":\n";
                 if (elif->pred.has_value()) {
+                    gen.m_output << label << ":\n";
                     gen.gen_if_pred(elif->pred.value(), end_label);
                 }
             }
@@ -189,16 +189,19 @@ void gen_stmt(const NodeStmt* stmt) {
         void operator()(const NodeStmtIf* stmt_if) const {
             gen.gen_expr(stmt_if->expr);
             gen.pop("x0");
-            const std::string label = gen.create_label();
+            const std::string label_if_false = gen.create_label();
+            const std::string label_end_if = gen.create_label();
             gen.m_output << "    cmp x0, #0\n";
-            gen.m_output << "    beq " << label << "\n";
+            gen.m_output << "    beq " << label_if_false << "\n";
             gen.gen_scope(stmt_if->scope);
-            gen.m_output << label << ":\n";
+            gen.m_output << "    b " << label_end_if << "\n";
+            gen.m_output << label_if_false << ":\n";
+
             if (stmt_if->pred.has_value()) {
-                const std::string end_label = gen.create_label();
-                gen.gen_if_pred(stmt_if->pred.value(), end_label);
-                gen.m_output << end_label << ":\n";
+                gen.gen_if_pred(stmt_if->pred.value(), label_end_if);
             }
+
+            gen.m_output << label_end_if << ":\n";
         }
     };
     StmtVisitor visitor{ .gen = *this };
