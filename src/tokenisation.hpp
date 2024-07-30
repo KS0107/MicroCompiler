@@ -22,6 +22,8 @@ enum class TokenType {
     open_brace,
     close_brace,
     if_,
+    elif,
+    else_
 };
 
 optional<int> bin_prec(TokenType type) {
@@ -74,6 +76,14 @@ public:
                     tokens.push_back({ TokenType::if_});
                     buffer.clear();
                     continue;
+                } else if (buffer == "elif") {
+                    tokens.push_back({ TokenType::elif});
+                    buffer.clear();
+                    continue;
+                } else if (buffer == "else") {
+                    tokens.push_back({ TokenType::else_});
+                    buffer.clear();
+                    continue;
                 } else {
                     tokens.push_back({.type = TokenType::ident, .value = buffer});
                     buffer.clear();
@@ -99,13 +109,13 @@ public:
                     consume();
                 }
             }  else if (peek().value() == '/' && peek(1).has_value() && peek(1).value() == '*') {
-                consume(); // Consume '/'
-                consume(); // Consume '*'
+                consume(); 
+                consume(); 
                 
                 while (peek().has_value()) {
                     if (peek().value() == '*' && peek(1).has_value() && peek(1).value() == '/') {
-                        consume(); // Consume '*'
-                        consume(); // Consume '/'
+                        consume(); 
+                        consume(); 
                         break;
                     }
                     consume();

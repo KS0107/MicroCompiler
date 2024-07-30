@@ -97,6 +97,35 @@ public:
         end_scope(); 
     }
 
+    void gen_if_pred(const NodeIfPred* pred, const std::string& end_label) {
+        struct PredVisitor {
+            Generator& gen;
+            const std::string& end_label;
+
+            void operator()(const NodeIfPredElif* elif) const {
+                gen.gen_expr(elif->expr);
+                gen.pop("x0");
+                const std::string label = gen.create_label();
+                gen.m_output << "    cmp x0, #0\n";
+                gen.m_output << "    beq " << label << "\n";
+                gen.gen_scope(elif->scope);
+                gen.m_output << "    b " << end_label << "\n";
+                gen.m_output << label << ":\n";
+                if (elif->pred.has_value()) {
+                    gen.gen_if_pred(elif->pred.value(), end_label);
+                }
+            }
+
+            void operator()(const NodeIfPredElse* else_) const {
+                gen.gen_scope(else_->scope);
+            }
+        };
+        PredVisitor visitor{ .gen = *this, .end_label = end_label };
+        std::visit(visitor, pred->var);
+    }
+
+
+
     void gen_expr(const NodeExpr* expr)
     {
         struct ExprVisitor {
@@ -115,51 +144,51 @@ public:
         std::visit(visitor, expr->var);
     }
 
-    void gen_stmt(const NodeStmt* stmt)
-    {
-        struct StmtVisitor {
-            Generator& gen;
-            void operator()(const NodeStmtExit* stmt_exit) const
-            {
-                gen.gen_expr(stmt_exit->expr);
-                gen.m_output << "    mov x16, #1\n";
-                gen.pop("x0");
-                gen.m_output << "    svc #0x80\n";
-            }
-            void operator()(const NodeStmtVar* stmt_let) const
-            {
-                auto it = std::find_if(gen.m_vars.cbegin(), 
-                    gen.m_vars.cend(),
-                    [&](const Var& var) {
-                        return var.name ==  stmt_let->ident.value.value();});
-                if (it != gen.m_vars.cend()) {
-                    std::cerr << "Identifier already used: " << stmt_let->ident.value.value() << std::endl;
-                    exit(EXIT_FAILURE);
-                }
-                gen.m_vars.push_back({ .name = stmt_let->ident.value.value(), .stack_loc = gen.m_stack_size  });
-                gen.gen_expr(stmt_let->expr);
-                gen.push("x0");
-            }
+void gen_stmt(const NodeStmt* stmt) {
+    struct StmtVisitor {
+        Generator& gen;
 
-            void operator()(const NodeScope* scope) const {
-                gen.gen_scope(scope);
+        void operator()(const NodeStmtExit* stmt_exit) const {
+            gen.gen_expr(stmt_exit->expr);
+            gen.m_output << "    mov x16, #1\n";
+            gen.pop("x0");
+            gen.m_output << "    svc #0x80\n";
+        }
+
+        void operator()(const NodeStmtVar* stmt_let) const {
+            auto it = std::find_if(gen.m_vars.cbegin(), gen.m_vars.cend(),
+                [&](const Var& var) { return var.name == stmt_let->ident.value.value(); });
+            if (it != gen.m_vars.cend()) {
+                std::cerr << "Identifier already used: " << stmt_let->ident.value.value() << std::endl;
+                exit(EXIT_FAILURE);
             }
+            gen.m_vars.push_back({ .name = stmt_let->ident.value.value(), .stack_loc = gen.m_stack_size });
+            gen.gen_expr(stmt_let->expr);
+            gen.push("x0");
+        }
 
-            void operator() (const NodeStmtIf* stmt_if) const {
-                gen.gen_expr(stmt_if->expr);
-                gen.pop("x0");
-                std::string label = gen.create_label();
-                gen.m_output << "    cmp x0, #0\n";
-                gen.m_output << "    beq " << label << "\n";
-                gen.gen_scope(stmt_if->scope);
-                gen.m_output << label << ":\n";
+        void operator()(const NodeScope* scope) const {
+            gen.gen_scope(scope);
+        }
+
+        void operator()(const NodeStmtIf* stmt_if) const {
+            gen.gen_expr(stmt_if->expr);
+            gen.pop("x0");
+            const std::string label = gen.create_label();
+            gen.m_output << "    cmp x0, #0\n";
+            gen.m_output << "    beq " << label << "\n";
+            gen.gen_scope(stmt_if->scope);
+            gen.m_output << label << ":\n";
+            if (stmt_if->pred.has_value()) {
+                const std::string end_label = gen.create_label();
+                gen.gen_if_pred(stmt_if->pred.value(), end_label);
+                gen.m_output << end_label << ":\n";
             }
-        };
-
-        StmtVisitor visitor { .gen = *this };
-        std::visit(visitor, stmt->var);
-    }
-
+        }
+    };
+    StmtVisitor visitor{ .gen = *this };
+    std::visit(visitor, stmt->var);
+}
     [[nodiscard]] std::string gen_prog()
     {
         m_output << ".global _start\n_start:\n";
