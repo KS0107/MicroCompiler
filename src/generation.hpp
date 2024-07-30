@@ -167,6 +167,21 @@ void gen_stmt(const NodeStmt* stmt) {
             gen.push("x0");
         }
 
+        void operator() (const NodeStmtAssign* stmt_assign) const {
+            auto it = std::find_if(gen.m_vars.cbegin(), gen.m_vars.cend(),
+                [&](const Var& var) { return var.name == stmt_assign->ident.value.value(); });
+            if (it == gen.m_vars.cend()) {
+                std::cerr << "Identifier has not been declared." << stmt_assign->ident.value.value() << std::endl;
+                exit(EXIT_FAILURE);
+            }
+            gen.gen_expr(stmt_assign->expr);
+            gen.pop("x0"); // Pop value into x0
+            std::stringstream offset;
+            offset << "[sp, #" << (gen.m_stack_size - it->stack_loc - 1) * 16 + 8 << "]"; // Calculate memory address
+            gen.m_output << "    str x0, " << offset.str() << "\n"; // Store x0 into memory
+
+        }
+
         void operator()(const NodeScope* scope) const {
             gen.gen_scope(scope);
         }

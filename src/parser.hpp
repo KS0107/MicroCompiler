@@ -89,8 +89,13 @@ struct NodeStmtIf {
     std::optional<NodeIfPred*> pred;
 };
 
+struct NodeStmtAssign {
+    Token ident;
+    NodeExpr* expr{};
+};
+
 struct NodeStmt {
-    std::variant<NodeStmtExit*, NodeStmtVar*, NodeScope*, NodeStmtIf*> var;
+    std::variant<NodeStmtExit*, NodeStmtVar*, NodeScope*, NodeStmtIf*, NodeStmtAssign*> var;
 };
 
 struct NodeProg {
@@ -275,7 +280,7 @@ public:
             stmt->var = stmt_exit;
             return stmt;
         }
-        else if (
+        if (
             peek().has_value() && peek().value().type == TokenType::var && peek(1).has_value()
             && peek(1).value().type == TokenType::ident && peek(2).has_value()
             && peek(2).value().type == TokenType::eq) {
@@ -294,7 +299,24 @@ public:
             auto stmt = m_allocator.alloc<NodeStmt>();
             stmt->var = stmt_var;
             return stmt;
-        } else if (peek().has_value() && peek().value().type == TokenType::open_brace) {
+        }
+        if (peek().has_value() && peek().value().type == TokenType::ident
+         && peek(1).has_value() && peek(1).value().type == TokenType::eq) {
+
+            const auto assign = m_allocator.alloc<NodeStmtAssign>();
+            assign->ident = consume();
+            consume();
+            if (const auto expr = parse_expr()) {
+                assign->expr = expr.value();
+            } else {
+                std::cerr << "Expected expression" << std::endl;
+                exit(EXIT_FAILURE);
+            }
+            try_consume(TokenType::semi, "Expected ';'");
+            auto stmt = m_allocator.emplace<NodeStmt>(assign);
+            return stmt;
+        }
+        if (peek().has_value() && peek().value().type == TokenType::open_brace) {
             if (auto scope = parse_scope()) {
                 auto stmt = m_allocator.alloc<NodeStmt>(); 
                 stmt->var = scope.value();
@@ -304,7 +326,8 @@ public:
                 exit(EXIT_FAILURE);
             }
 
-        } else if (auto if_ = try_consume(TokenType::if_)) {
+        }
+        if (auto if_ = try_consume(TokenType::if_)) {
             try_consume(TokenType::open_paren, "Expected '('");
             auto stmt_if = m_allocator.alloc<NodeStmtIf>();
             if (auto expr = parse_expr()) {
