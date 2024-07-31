@@ -1,0 +1,21 @@
+// test_conditional_nested_simple.micro
+var x = 5;
+
+var conditionouter = 1;  // True
+var conditioninner = 0;  // False
+
+if (conditionouter) {
+    if (conditioninner) {
+        x = 2 * x;  // This block will not execute
+    } else {
+        x = x - 1;  // This block will execute
+    }
+} elif (0) {
+    x = x + 5;
+} else {
+    x = 1;
+}
+
+var y = x + 7;  // y = 12
+var z = y / 2;  // z = 6
+exit(z);        // Should exit with z = 6

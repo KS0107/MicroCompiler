@@ -1,0 +1,6 @@
+// test_combined_operations.micro
+var a = 5 + 3 * 2;      // a = 11 (multiplication first)
+var b = a - 4;          // b = 7 (b = 11 - 4)
+var c = (b + 2) * 3;    // c = 27 (c = (7 + 2) * 3)
+var d = (a - b) + c;    // d = 31 (d = (11 - 7) + 27)
+exit(d);                // Should exit with d = 31

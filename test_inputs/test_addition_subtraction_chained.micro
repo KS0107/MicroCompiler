@@ -1,0 +1,7 @@
+// test_addition_subtraction_chained.micro
+var a = 5 + 3 * 2;          // a = 5 + 6 = 11 (multiplication first)
+var b = (5 + 3) * 2;        // b = 8 * 2 = 16 (addition first)
+var c = 10 - 2 * (4 + 1);  // c = 10 - 2 * 5 = 10 - 10 = 0 (parentheses first)
+var d = (10 - 2) * (4 + 1); // d = 8 * 5 = 40 (parentheses first)
+var e = a + b + c;          // e = 11 + 16 + 0 = 27
+exit(e);                    // Should exit with e = 27

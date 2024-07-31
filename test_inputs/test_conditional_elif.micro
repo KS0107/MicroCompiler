@@ -1,0 +1,14 @@
+// test_conditional_elif.micro
+var x = 7;
+
+if (0) {
+    x = 1;
+} elif (1) {
+    x = 3; // This block will be executed
+} else {
+    x = 10;
+}
+
+var y = x + 5; // y = 8
+var z = y * 2; // z = 16
+exit(z);       // Should exit with z = 16

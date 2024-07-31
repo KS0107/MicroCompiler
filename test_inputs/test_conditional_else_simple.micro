@@ -1,0 +1,15 @@
+// test_conditional_else_simple.micro
+var conditionif = 0;     // False
+var conditionelif = 0;   // False
+
+if (conditionif) {
+    var x = 1;
+} elif (conditionelif) {
+    var x = 3;
+} else {
+    var x = 10; // This block will be executed
+}
+
+var y = x * 2;  // y = 20
+var z = y - 5;  // z = 15
+exit(z);        // Should exit with z = 15

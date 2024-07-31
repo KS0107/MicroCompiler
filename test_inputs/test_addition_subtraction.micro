@@ -1,0 +1,6 @@
+// test_addition_subtraction.micro
+var a = 5 + 3;          // a = 8
+var b = 10 - a;         // b = 2 (b = 10 - 8)
+var c = b + 4;          // c = 6 (c = 2 + 4)
+var d = (a - b) + c;    // d = 12 (d = (8 - 2) + 6)
+exit(d);                // Should exit with d = 12

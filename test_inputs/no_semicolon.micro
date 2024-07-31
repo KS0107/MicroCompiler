@@ -1,0 +1,12 @@
+var y = (10 - 2 * 3)
+var x = 7; // first
+//first
+if (0) {
+    x = 1;
+} elif (1) {
+    x = 3;
+} else {
+    x = 10;
+}
+exit(x);
+ 
