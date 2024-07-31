@@ -171,7 +171,7 @@ void gen_stmt(const NodeStmt* stmt) {
             auto it = std::find_if(gen.m_vars.cbegin(), gen.m_vars.cend(),
                 [&](const Var& var) { return var.name == stmt_assign->ident.value.value(); });
             if (it == gen.m_vars.cend()) {
-                std::cerr << "Identifier has not been declared." << stmt_assign->ident.value.value() << std::endl;
+                std::cerr << "Identifier has not been declared: " << stmt_assign->ident.value.value() << std::endl;
                 exit(EXIT_FAILURE);
             }
             gen.gen_expr(stmt_assign->expr);

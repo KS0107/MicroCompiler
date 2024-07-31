@@ -321,7 +321,7 @@ public:
                 stmt->var = scope.value();
                 return stmt;
             } else {
-                std::cerr << "Invalid scope " << std::endl;
+                std::cerr << "Invalid scope" << std::endl;
                 exit(EXIT_FAILURE);
             }
 
@@ -339,7 +339,7 @@ public:
             if (auto scope = parse_scope()) {
                 stmt_if->scope = scope.value();
             } else {
-                std::cerr << "Invalid scope " << std::endl;
+                std::cerr << "Invalid scope" << std::endl;
                 exit(EXIT_FAILURE);
             }
             stmt_if->pred = parse_if_pred();
