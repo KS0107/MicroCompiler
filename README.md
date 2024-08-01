@@ -26,3 +26,6 @@ macOS version 14.0 or later (for specific linking options)
 4. If you have a source file named test.micro, you can run it using ```./build/microcompiler test.micro```
 5. The generated executable file will automatically be executed once compiled
 
+## Testing
+
+1. Running cmake withing the build dir is also going to build and run the test suite 
