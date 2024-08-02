@@ -1,0 +1,5 @@
+// test_undeclared_var.micro
+var x = 5;
+y = x + 2; // Error: y is not declared
+
+exit(x);

@@ -121,6 +121,12 @@ TEST(MicroCompilerTests, Pemdas) {
     EXPECT_EQ(output, expected_output);
 }
 
+TEST(MicroCompilerTests, Undeclared) {
+    std::string output = runCompilerWithFile("./test_inputs/undeclare_var.micro");
+    std::string expected_output = "Identifier has not been declared: y\n";  // Based on the calculations in the file
+    EXPECT_EQ(output, expected_output);
+}
+
 
 
 int main(int argc, char **argv) {
