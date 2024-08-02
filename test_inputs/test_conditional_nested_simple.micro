@@ -16,6 +16,6 @@ if (conditionouter) {
     x = 1;
 }
 
-var y = x + 7;  // y = 12
+var y = x + 8;  // y = 12
 var z = y / 2;  // z = 6
 exit(z);        // Should exit with z = 6

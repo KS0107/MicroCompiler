@@ -1,13 +1,14 @@
 // test_conditional_else_simple.micro
 var conditionif = 0;     // False
 var conditionelif = 0;   // False
+var x = 0;
 
 if (conditionif) {
-    var x = 1;
+    x = 1;
 } elif (conditionelif) {
-    var x = 3;
+    x = 3;
 } else {
-    var x = 10; // This block will be executed
+    x = 10; // This block will be executed
 }
 
 var y = x * 2;  // y = 20

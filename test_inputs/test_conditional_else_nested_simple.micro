@@ -1,21 +1,22 @@
-// test_conditional_nested_simple.micro
-var x = 5;
+// test_conditional_else_nested_simple.micro
+var x = 2;
 
-var conditionouter = 1;  // True
-var conditioninner = 0;  // False
+var conditionif = 0;     // False
+var conditionelif = 0;   // True
+var conditionnested = 0; // False
 
-if (conditionouter) {
-    if (conditioninner) {
-        x = 2 * x;  // This block will not execute
+if (conditionif) {
+    x = 100;
+} elif (conditionelif) {
+    if (conditionnested) {
+        x = 50;
     } else {
-        x = x - 1;  // This block will execute
+        x = 25; 
     }
-} elif (0) {
-    x = x + 5;
 } else {
-    x = 1;
+    x = 0; // This block will execute
 }
 
-var y = x + 7;  // y = 12
-var z = y / 2;  // z = 6
-exit(z);        // Should exit with z = 6
+var y = x * 2;  // y = 0 (since x = 0)
+var z = y + 10; // z = 10
+exit(z);        // Should exit with z = 10
