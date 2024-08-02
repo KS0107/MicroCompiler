@@ -1,6 +1,6 @@
 # Micro Compiler
 
-This project is a simple compiler for the micro language written with primarily C++. furthering the work of Matthew Oros.
+This project is a simple compiler for the micro language written with primarily C++, furthering the work of Matthew Oros.
 This version of the Micro compiler is designed for use with devices using an ARM64 instruction set, which means it may not run on x86 or other architectures without modification.
 
 ## Features
@@ -26,3 +26,7 @@ macOS version 14.0 or later (for specific linking options)
 4. If you have a source file named test.micro, you can run it using ```./build/microcompiler test.micro```
 5. The generated executable file will automatically be executed once compiled
 
+## Testing
+
+1. Running CMake withing the build directory is also going to build and run the test suite
+2. Run ```cmake --build build/;./build/runTests``` to run all tests
