@@ -1,6 +1,6 @@
 # Micro Compiler
 
-This project is a simple compiler for the micro language written with primarily C++. furthering the work of Matthew Oros.
+This project is a simple compiler for the micro language written with primarily C++, furthering the work of Matthew Oros.
 This version of the Micro compiler is designed for use with devices using an ARM64 instruction set, which means it may not run on x86 or other architectures without modification.
 
 ## Features
