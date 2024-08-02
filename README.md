@@ -20,14 +20,14 @@ macOS version 14.0 or later (for specific linking options)
 
 ## Usage
 
-1. cd to root directory of the project and create a build directory: ```mkdir build```
-2. Use CMake to generate all build files: ```cmake -S . -B build```
-3. Build using CMake: ```cmake --build build```
-4. If you have a source file named test.micro, you can run it using ```./build/microcompiler test.micro```
-5. The generated executable file will automatically be executed once compiled
+1. cd to root directory of the project and create a build directory: ```mkdir build```.
+2. Use CMake to generate all build files: ```cmake -S . -B build```.
+3. Build using CMake: ```cmake --build build```.
+4. If you have a source file named test.micro, you can run it using ```./build/microcompiler test.micro```.
+5. The generated executable file will automatically be executed once compiled.
 
 ## Testing
 
-1. Running CMake withing the build directory is also going to build and run the test suite
-2. Navigate to ```MicroCompiler```
-3. Run ```cmake --build build/;./build/runTests``` to run all tests
+1. Running CMake withing the build directory is also going to build and run the test suite.
+2. Navigate to ```MicroCompiler```.
+3. Run ```cmake --build build/``` to build the project and the tests, and then```./build/runTests``` to run all tests.
