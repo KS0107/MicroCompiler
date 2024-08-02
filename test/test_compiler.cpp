@@ -97,6 +97,19 @@ TEST(MicroCompilerTests, ConditionalElseNestedSimple) {
     EXPECT_EQ(output, expected_output);
 }
 
+TEST(MicroCompilerTests, MultilineComment) {
+    std::string output = runCompilerWithFile("./test_inputs/multiline_comment.micro");
+    std::string expected_output = "Program exited with status: 21\n";  // Based on the calculations in the file
+    EXPECT_EQ(output, expected_output);
+}
+
+TEST(MicroCompilerTests, VarReassignment) {
+    std::string output = runCompilerWithFile("./test_inputs/variable_reassignment.micro");
+    std::string expected_output = "Program exited with status: 4\n";  // Based on the calculations in the file
+    EXPECT_EQ(output, expected_output);
+}
+
+
 
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);

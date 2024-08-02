@@ -1,0 +1,6 @@
+var a = 4 * (3 + 2);       
+a = a / 4;              
+a = (a + 2) * 3;       
+a = 12 / (2 * 3);        
+a = (a / a) * (a + a);   
+exit(a); // Should exit with 4    
