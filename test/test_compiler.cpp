@@ -109,6 +109,18 @@ TEST(MicroCompilerTests, VarReassignment) {
     EXPECT_EQ(output, expected_output);
 }
 
+TEST(MicroCompilerTests, MultilevelElif) {
+    std::string output = runCompilerWithFile("./test_inputs/test_multilevel_elif.micro");
+    std::string expected_output = "Program exited with status: 7\n";  // Based on the calculations in the file
+    EXPECT_EQ(output, expected_output);
+}
+
+TEST(MicroCompilerTests, Pemdas) {
+    std::string output = runCompilerWithFile("./test_inputs/test_complex_pemdas.micro");
+    std::string expected_output = "Program exited with status: 46\n";  // Based on the calculations in the file
+    EXPECT_EQ(output, expected_output);
+}
+
 
 
 int main(int argc, char **argv) {

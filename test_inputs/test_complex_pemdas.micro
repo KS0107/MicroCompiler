@@ -1,0 +1,5 @@
+var x = 2 + 3 * 4; // x = 14
+var y = (2 + 3) * 4; // y = 20
+var z = 10 / 2 + 3 * 4 - 5; // z = 12
+
+exit(x + y + z); // Should exit with 14 + 20 + 12 = 46

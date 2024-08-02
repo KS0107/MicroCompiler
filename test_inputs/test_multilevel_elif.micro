@@ -1,0 +1,14 @@
+// test_multi_level_elif.micro
+var x = 5;
+var bool = 0;
+if (bool) {
+    x = 1;
+} elif (bool) {
+    x = 3;
+} elif (x) {
+    x = 7; // This block will be executed
+} else {
+    x = 10;
+}
+
+exit(x); // Should exit with x = 7
