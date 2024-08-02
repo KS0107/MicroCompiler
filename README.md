@@ -29,4 +29,5 @@ macOS version 14.0 or later (for specific linking options)
 ## Testing
 
 1. Running CMake withing the build directory is also going to build and run the test suite
-2. Run ```cmake --build build/;./build/runTests``` to run all tests
+2. Navigate to ```MicroCompiler```
+3. Run ```cmake --build build/;./build/runTests``` to run all tests
