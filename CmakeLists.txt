@@ -1,7 +1,41 @@
-cmake_minimum_required(VERSION 3.17)
+cmake_minimum_required(VERSION 3.14)
+project(MicroCompilerTests)
 
-project(microcompiler)
+# Enable testing
+enable_testing()
 
-set(CMAKE_CXX_STANDARD 20)
+# Add GoogleTest submodule
+add_subdirectory(googletest)
+include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 
-add_executable(microcompiler src/main.cpp)
+# Set C++ standard
+set(CMAKE_CXX_STANDARD 17)
+
+# Define source and include directories
+set(SRC_DIR ${CMAKE_SOURCE_DIR}/src)
+set(INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include)
+set(TEST_DIR ${CMAKE_SOURCE_DIR}/test)
+include_directories(${INCLUDE_DIR})
+
+# Add microcompiler source files
+add_executable(microcompiler
+    ${SRC_DIR}/main.cpp
+    ${SRC_DIR}/arena.hpp
+    ${SRC_DIR}/tokenisation.hpp
+    ${SRC_DIR}/parser.hpp
+    ${SRC_DIR}/generation.hpp
+)
+
+# Add the tests
+add_executable(runTests
+    ${TEST_DIR}/test_compiler.cpp
+)
+
+# Link GoogleTest with the test executable
+target_link_libraries(runTests gtest gtest_main)
+
+# Add tests to CMake's testing framework
+add_test(NAME CompilerTests COMMAND runTests)
+
+# Ensure test files are accessible
+file(COPY ${CMAKE_SOURCE_DIR}/test_inputs/ DESTINATION ${CMAKE_BINARY_DIR}/test_inputs/)
