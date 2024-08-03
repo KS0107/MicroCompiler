@@ -9,6 +9,7 @@ Tokenizes input source code
 Parses tokens into an abstract syntax tree (AST)
 Generates assembly code from the AST
 Assembles and links the generated assembly into an executable
+Grammar for this language can be found in ```language_grammar.md``` (to be compiled wiht LaTeX).
 
 ## Requirements
 CMake (for building the project)
